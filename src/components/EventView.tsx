@@ -23,14 +23,8 @@ import {
   getWeekDates,
   getWeeksAtMonth,
 } from '../utils/dateUtils';
-
-import { useEventForm } from '../hooks/useEventForm';
-import { useEventOperations } from '../hooks/useEventOperations';
-import { useCalendarView } from '../hooks/useCalendarView';
-import { useNotifications } from '../hooks/useNotifications';
-import { useSearch } from '../hooks/useSearch';
-import { useSnackbar } from 'notistack';
-import { RepeatType } from '../types';
+import { getRepeatTypeLabel } from '../utils/eventUtils';
+import { Event } from '../types';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -56,32 +50,25 @@ const eventBoxStyles = {
   },
 };
 
-const getRepeatTypeLabel = (type: RepeatType): string => {
-  switch (type) {
-    case 'daily':
-      return '일';
-    case 'weekly':
-      return '주';
-    case 'monthly':
-      return '월';
-    case 'yearly':
-      return '년';
-    default:
-      return '';
-  }
-};
+interface Props {
+  currentDate: Date;
+  filteredEvents: Event[];
+  notifiedEvents: string[];
+  holidays: Record<string, string>;
+  navigate: (direction: 'prev' | 'next') => void;
+  view: 'week' | 'month';
+  setView: (view: 'week' | 'month') => void;
+}
 
-const EventView = () => {
-  const { editingEvent, setEditingEvent } = useEventForm();
-
-  const { events } = useEventOperations(Boolean(editingEvent), () => setEditingEvent(null));
-
-  const { notifiedEvents } = useNotifications(events);
-  const { view, setView, currentDate, holidays, navigate } = useCalendarView();
-  const { filteredEvents } = useSearch(events, currentDate, view);
-
-  const { enqueueSnackbar } = useSnackbar();
-
+const EventView = ({
+  currentDate,
+  filteredEvents,
+  notifiedEvents,
+  holidays,
+  navigate,
+  view,
+  setView,
+}: Props) => {
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
     return (
