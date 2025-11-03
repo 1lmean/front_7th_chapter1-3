@@ -17,6 +17,7 @@ export default mergeConfig(
   defineTestConfig({
     test: {
       globals: true,
+      timeout: 10000,
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
       coverage: {
