@@ -1,29 +1,24 @@
 import react from '@vitejs/plugin-react-swc';
-import { defineConfig } from 'vite';
-import { defineConfig as defineTestConfig, mergeConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 
-export default mergeConfig(
-  defineConfig({
-    plugins: [react()],
-    server: {
-      proxy: {
-        '/api': {
-          target: 'http://localhost:3000',
-          changeOrigin: true,
-        },
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
       },
     },
-  }),
-  defineTestConfig({
-    test: {
-      globals: true,
-      timeout: 10000,
-      environment: 'jsdom',
-      setupFiles: './src/setupTests.ts',
-      coverage: {
-        reportsDirectory: './.coverage',
-        reporter: ['lcov', 'json', 'json-summary'],
-      },
+  },
+  test: {
+    globals: true,
+    testTimeout: 20000,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    coverage: {
+      reportsDirectory: './.coverage',
+      reporter: ['lcov', 'json', 'json-summary'],
     },
-  })
-);
+  },
+});
