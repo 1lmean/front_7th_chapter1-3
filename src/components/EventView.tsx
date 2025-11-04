@@ -18,6 +18,8 @@ import {
 import { useEffect } from 'react';
 import Draggable from '../components/ui/Draggable';
 import Droppable from '../components/ui/Droppable';
+import { Event } from '../types';
+import { useCalendarView } from '../hooks/useCalendarView';
 import {
   formatDate,
   formatMonth,
@@ -26,9 +28,7 @@ import {
   getWeekDates,
   getWeeksAtMonth,
 } from '../utils/dateUtils';
-import { useCalendarView } from '../hooks/useCalendarView';
 import { getRepeatTypeLabel } from '../utils/eventUtils';
-import { Event } from '../types';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
