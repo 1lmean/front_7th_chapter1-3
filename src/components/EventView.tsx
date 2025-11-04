@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { DndContext, pointerWithin, MeasuringStrategy } from '@dnd-kit/core';
+import { useEffect } from 'react';
 import Droppable from '../components/ui/Droppable';
 import Draggable from '../components/ui/Draggable';
 
@@ -28,6 +29,7 @@ import {
 } from '../utils/dateUtils';
 import { getRepeatTypeLabel } from '../utils/eventUtils';
 import { Event } from '../types';
+import { useCalendarView } from '../hooks/useCalendarView';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -54,26 +56,28 @@ const eventBoxStyles = {
 };
 
 interface Props {
-  currentDate: Date;
   filteredEvents: Event[];
   notifiedEvents: string[];
-  holidays: Record<string, string>;
-  navigate: (direction: 'prev' | 'next') => void;
-  view: 'week' | 'month';
-  setView: (view: 'week' | 'month') => void;
   onEventDrop: (originalEvent: Event, nextDate: string) => Promise<void> | void;
+  onCalendarStateChange: (state: {
+    view: 'week' | 'month';
+    currentDate: Date;
+    holidays: Record<string, string>;
+  }) => void;
 }
 
 const EventView = ({
-  currentDate,
   filteredEvents,
   notifiedEvents,
-  holidays,
-  navigate,
-  view,
-  setView,
   onEventDrop,
+  onCalendarStateChange,
 }: Props) => {
+  const { view, setView, currentDate, holidays, navigate } = useCalendarView();
+
+  useEffect(() => {
+    onCalendarStateChange({ view, currentDate, holidays });
+  }, [onCalendarStateChange, view, currentDate, holidays]);
+
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
     return (

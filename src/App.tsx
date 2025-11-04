@@ -22,10 +22,9 @@ import {
   Typography,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import RecurringEventDialog from './components/RecurringEventDialog.tsx';
-import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
@@ -95,8 +94,39 @@ function App() {
   );
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
-  const { view, setView, currentDate, holidays, navigate } = useCalendarView();
-  const { searchTerm, filteredEvents, setSearchTerm } = useSearch(events, currentDate, view);
+
+  const [calendarState, setCalendarState] = useState<{
+    view: 'week' | 'month';
+    currentDate: Date;
+    holidays: Record<string, string>;
+  }>({ view: 'month', currentDate: new Date(), holidays: {} });
+
+  const handleCalendarStateChange = useCallback(
+    (state: { view: 'week' | 'month'; currentDate: Date; holidays: Record<string, string> }) => {
+      setCalendarState((prev) => {
+        const isSameView = prev.view === state.view;
+        const isSameDate = prev.currentDate.getTime() === state.currentDate.getTime();
+        const prevHolidayKeys = Object.keys(prev.holidays);
+        const nextHolidayKeys = Object.keys(state.holidays);
+        const isSameHolidays =
+          prevHolidayKeys.length === nextHolidayKeys.length &&
+          prevHolidayKeys.every((key) => prev.holidays[key] === state.holidays[key]);
+
+        if (isSameView && isSameDate && isSameHolidays) {
+          return prev;
+        }
+
+        return state;
+      });
+    },
+    []
+  );
+
+  const { searchTerm, filteredEvents, setSearchTerm } = useSearch(
+    events,
+    calendarState.currentDate,
+    calendarState.view
+  );
 
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
@@ -473,14 +503,10 @@ function App() {
         </Stack>
 
         <EventView
-          currentDate={currentDate}
           filteredEvents={filteredEvents}
           notifiedEvents={notifiedEvents}
-          holidays={holidays}
-          navigate={navigate}
-          view={view}
-          setView={setView}
           onEventDrop={handleEventDrop}
+          onCalendarStateChange={handleCalendarStateChange}
         />
 
         <Stack
