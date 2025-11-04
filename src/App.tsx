@@ -24,6 +24,7 @@ import {
 import { useSnackbar } from 'notistack';
 import { useCallback, useState } from 'react';
 
+import EventView from './components/EventView.tsx';
 import RecurringEventDialog from './components/RecurringEventDialog.tsx';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -32,9 +33,8 @@ import { useRecurringEventOperations } from './hooks/useRecurringEventOperations
 import { useSearch } from './hooks/useSearch.ts';
 import { Event, EventForm, RepeatType } from './types.ts';
 import { findOverlappingEvents } from './utils/eventOverlap.ts';
-import { getTimeErrorMessage } from './utils/timeValidation.ts';
 import { getRepeatTypeLabel } from './utils/eventUtils.ts';
-import EventView from './components/EventView.tsx';
+import { getTimeErrorMessage } from './utils/timeValidation.ts';
 
 const categories = ['업무', '개인', '가족', '기타'];
 

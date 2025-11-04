@@ -1,3 +1,4 @@
+import { DndContext, pointerWithin, MeasuringStrategy, DragEndEvent } from '@dnd-kit/core';
 import { Notifications, ChevronLeft, ChevronRight, Repeat } from '@mui/icons-material';
 import {
   Box,
@@ -14,11 +15,9 @@ import {
   Typography,
   Tooltip,
 } from '@mui/material';
-import { DndContext, pointerWithin, MeasuringStrategy } from '@dnd-kit/core';
 import { useEffect } from 'react';
-import Droppable from '../components/ui/Droppable';
 import Draggable from '../components/ui/Draggable';
-
+import Droppable from '../components/ui/Droppable';
 import {
   formatDate,
   formatMonth,
@@ -27,9 +26,9 @@ import {
   getWeekDates,
   getWeeksAtMonth,
 } from '../utils/dateUtils';
+import { useCalendarView } from '../hooks/useCalendarView';
 import { getRepeatTypeLabel } from '../utils/eventUtils';
 import { Event } from '../types';
-import { useCalendarView } from '../hooks/useCalendarView';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -293,7 +292,7 @@ const EventView = ({
     );
   };
 
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) {
       return;
