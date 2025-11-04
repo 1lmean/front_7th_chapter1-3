@@ -12,10 +12,6 @@ function Droppable(props: { children: React.ReactNode; id: string }) {
     height: '100%',
   };
 
-  React.useEffect(() => {
-    console.log(props.id, isOver);
-  }, [isOver]);
-
   return (
     <div ref={setNodeRef} style={style}>
       {props.children}
