@@ -64,6 +64,7 @@ interface Props {
     currentDate: Date;
     holidays: Record<string, string>;
   }) => void;
+  onEmptySlotSelect: (date: string) => void;
 }
 
 const EventView = ({
@@ -71,12 +72,23 @@ const EventView = ({
   notifiedEvents,
   onEventDrop,
   onCalendarStateChange,
+  onEmptySlotSelect,
 }: Props) => {
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
 
   useEffect(() => {
     onCalendarStateChange({ view, currentDate, holidays });
   }, [onCalendarStateChange, view, currentDate, holidays]);
+
+  const hasEventsOnDate = (dateString: string) =>
+    filteredEvents.some((event) => event.date === dateString);
+
+  const handleDateCellClick = (dateString: string) => {
+    if (hasEventsOnDate(dateString)) {
+      return;
+    }
+    onEmptySlotSelect(dateString);
+  };
 
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
@@ -106,6 +118,7 @@ const EventView = ({
                       padding: 1,
                       border: '1px solid #e0e0e0',
                     }}
+                    onClick={() => handleDateCellClick(date.toISOString().slice(0, 10))}
                   >
                     <Droppable id={`${date.toISOString().slice(0, 10)}`}>
                       <Typography variant="body2" fontWeight="bold">
@@ -127,6 +140,7 @@ const EventView = ({
                                   ...eventBoxStyles.common,
                                   ...(isNotified ? eventBoxStyles.notified : eventBoxStyles.normal),
                                 }}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <Stack direction="row" spacing={1} alignItems="center">
                                   {isNotified && <Notifications fontSize="small" />}
@@ -202,6 +216,7 @@ const EventView = ({
                           border: '1px solid #e0e0e0',
                           position: 'relative',
                         }}
+                        onClick={() => day && handleDateCellClick(dateString)}
                       >
                         {day && (
                           <>
@@ -233,6 +248,7 @@ const EventView = ({
                                         width: '100%',
                                         overflow: 'hidden',
                                       }}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <Stack direction="row" spacing={1} alignItems="center">
                                         {isNotified && <Notifications fontSize="small" />}

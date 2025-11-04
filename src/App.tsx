@@ -138,6 +138,21 @@ function App() {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const handleEmptySlotSelect = useCallback(
+    (dateString: string) => {
+      const hasEvent = filteredEvents.some((event) => event.date === dateString);
+      if (hasEvent) {
+        return;
+      }
+
+      setEditingEvent(null);
+      setRecurringEditMode(null);
+      resetForm();
+      setDate(dateString);
+    },
+    [filteredEvents, resetForm, setDate, setEditingEvent, setRecurringEditMode]
+  );
+
   const handleRecurringConfirm = async (editSingleOnly: boolean) => {
     if (recurringDialogMode === 'edit' && pendingRecurringEdit) {
       // 편집 모드 저장하고 편집 폼으로 이동
@@ -507,6 +522,7 @@ function App() {
           notifiedEvents={notifiedEvents}
           onEventDrop={handleEventDrop}
           onCalendarStateChange={handleCalendarStateChange}
+          onEmptySlotSelect={handleEmptySlotSelect}
         />
 
         <Stack
