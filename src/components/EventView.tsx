@@ -18,8 +18,8 @@ import {
 import { useEffect } from 'react';
 import Draggable from '../components/ui/Draggable';
 import Droppable from '../components/ui/Droppable';
-import { Event } from '../types';
 import { useCalendarView } from '../hooks/useCalendarView';
+import { Event } from '../types';
 import {
   formatDate,
   formatMonth,
