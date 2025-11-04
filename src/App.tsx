@@ -157,6 +157,52 @@ function App() {
     }
   };
 
+  const handleEventDrop = async (originalEvent: Event, nextDate: string) => {
+    if (!originalEvent || !nextDate || originalEvent.date === nextDate) {
+      return;
+    }
+
+    const updatedEvent: Event = {
+      ...originalEvent,
+      date: nextDate,
+    };
+
+    if (isRecurringEvent(originalEvent)) {
+      try {
+        await handleRecurringEdit(updatedEvent, true);
+        enqueueSnackbar('일정이 수정되었습니다', { variant: 'success' });
+      } catch (error) {
+        console.error('Error updating recurring event via drag and drop:', error);
+        enqueueSnackbar('일정 수정 실패', { variant: 'error' });
+      }
+      return;
+    }
+
+    const overlapping = findOverlappingEvents(updatedEvent, events);
+    if (overlapping.length > 0) {
+      enqueueSnackbar('다른 일정과 시간이 겹칩니다.', { variant: 'error' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${originalEvent.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedEvent),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update event');
+      }
+
+      await fetchEvents();
+      enqueueSnackbar('일정이 수정되었습니다', { variant: 'success' });
+    } catch (error) {
+      console.error('Error updating event via drag and drop:', error);
+      enqueueSnackbar('일정 수정 실패', { variant: 'error' });
+    }
+  };
+
   const addOrUpdateEvent = async () => {
     if (!title || !date || !startTime || !endTime) {
       enqueueSnackbar('필수 정보를 모두 입력해주세요.', { variant: 'error' });
@@ -434,6 +480,7 @@ function App() {
           navigate={navigate}
           view={view}
           setView={setView}
+          onEventDrop={handleEventDrop}
         />
 
         <Stack

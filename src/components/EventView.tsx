@@ -61,6 +61,7 @@ interface Props {
   navigate: (direction: 'prev' | 'next') => void;
   view: 'week' | 'month';
   setView: (view: 'week' | 'month') => void;
+  onEventDrop: (originalEvent: Event, nextDate: string) => Promise<void> | void;
 }
 
 const EventView = ({
@@ -71,6 +72,7 @@ const EventView = ({
   navigate,
   view,
   setView,
+  onEventDrop,
 }: Props) => {
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
@@ -101,7 +103,7 @@ const EventView = ({
                       border: '1px solid #e0e0e0',
                     }}
                   >
-                    <Droppable id={`day-${date.toISOString().slice(0, 10)}`}>
+                    <Droppable id={`${date.toISOString().slice(0, 10)}`}>
                       <Typography variant="body2" fontWeight="bold">
                         {date.getDate()}
                       </Typography>
@@ -114,7 +116,7 @@ const EventView = ({
                           const isRepeating = event.repeat.type !== 'none';
 
                           return (
-                            <Draggable key={event.id} id={`event-${event.id}`}>
+                            <Draggable key={event.id} id={`${event.id}`}>
                               <Box
                                 key={event.id}
                                 sx={{
@@ -207,13 +209,13 @@ const EventView = ({
                                 {holiday}
                               </Typography>
                             )}
-                            <Droppable id={`day-${dateString}`}>
+                            <Droppable id={`${dateString}`}>
                               {getEventsForDay(filteredEvents, day).map((event) => {
                                 const isNotified = notifiedEvents.includes(event.id);
                                 const isRepeating = event.repeat.type !== 'none';
 
                                 return (
-                                  <Draggable key={event.id} id={`event-${event.id}`}>
+                                  <Draggable key={event.id} id={`${event.id}`}>
                                     <Box
                                       key={event.id}
                                       sx={{
@@ -271,8 +273,19 @@ const EventView = ({
     );
   };
 
-  const handleDragEnd = (event: any) => {
-    // 이벤트 수정 (날짜)
+  const handleDragEnd = async (event: any) => {
+    const { active, over } = event;
+    if (!over) {
+      return;
+    }
+
+    const editingEvent = filteredEvents.find((item) => item.id === active.id);
+    if (!editingEvent) {
+      return;
+    }
+
+    const nextDate = String(over.id);
+    await onEventDrop(editingEvent, nextDate);
   };
 
   return (
