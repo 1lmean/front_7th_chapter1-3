@@ -1,6 +1,6 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within, act, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { SnackbarProvider } from 'notistack';
@@ -189,6 +189,22 @@ describe('일정 뷰', () => {
 
     const monthView = within(screen.getByTestId('month-view'));
     expect(monthView.getByText('이번달 팀 회의')).toBeInTheDocument();
+  });
+
+  it('빈 달력 셀을 클릭하면 해당 날짜가 일정 추가 폼에 설정된다', async () => {
+    const { user } = setup(<App />);
+
+    await screen.findByText('일정 로딩 완료!');
+
+    const monthView = within(screen.getByTestId('month-view'));
+    const dayLabel = monthView.getAllByText('3', { selector: 'p' })[0];
+    const dayCell = dayLabel.closest('td');
+    expect(dayCell).toBeTruthy();
+
+    await user.click(dayCell!);
+
+    const dateInput = screen.getByLabelText('날짜');
+    await waitFor(() => expect(dateInput).toHaveValue('2025-10-03'));
   });
 
   it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
