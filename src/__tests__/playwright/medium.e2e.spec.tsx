@@ -89,15 +89,23 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
    */
   // 달력에서 확인
   // 검색에서 확인
-  await expect(
-    page.locator('div').filter({ hasText: '새 회의2025-11-0514:00 - 15:00' }).nth(4)
-  ).toBeVisible();
+  const addedEventList = page.locator('div').filter({ hasText: '새 회의2025-11-0514:00 - 15:00' });
+  await expect(addedEventList.nth(4)).toBeVisible();
 
   /**
    * UPDATE
    */
   // 전체
   // 단일
+  const targetCard = page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).nth(2);
+  await targetCard.getByRole('button', { name: 'Edit event' }).click();
+  await page.getByRole('button', { name: '예' }).click();
+
+  await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
+  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-07');
+  await page.getByTestId('event-submit-button').click();
+
+  await expect(targetCard).not.toContainText('반복: 1일마다 (종료: 2025-11-08)');
 
   /**
    * DELETE
