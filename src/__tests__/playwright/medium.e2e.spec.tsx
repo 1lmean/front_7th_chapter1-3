@@ -65,9 +65,6 @@ test('일정 CRUD 및 기본 기능', async ({ page }) => {
 test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
-  const eventList = page.getByTestId('event-list').locator('> *');
-  const count = await eventList.count();
-
   /**
    * CREATE
    */
@@ -95,9 +92,23 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   /**
    * UPDATE
    */
-  // 전체
-  // 단일
   const targetCard = page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).nth(2);
+
+  // 반복 일정 전체 수정
+  await targetCard.getByRole('button', { name: 'Edit event' }).click();
+  await page.getByRole('button', { name: '아니오' }).click();
+
+  await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
+  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-07');
+  await page.getByRole('textbox', { name: '위치' }).clear();
+  await page.getByRole('textbox', { name: '위치' }).fill('회의실 C');
+  await page.getByTestId('event-submit-button').click();
+
+  await expect(
+    page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).first()
+  ).toContainText('회의실 C');
+
+  // 반복 일정 단일 수정
   await targetCard.getByRole('button', { name: 'Edit event' }).click();
   await page.getByRole('button', { name: '예' }).click();
 
@@ -110,6 +121,7 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   /**
    * DELETE
    */
-  // 전체
-  // 단일
+  // 반복 일정 단일 삭제
+
+  // 반복 일정 전체 삭제
 });
