@@ -23,6 +23,8 @@ test('일정 CRUD 및 기본 기능', async ({ page }) => {
   /**
    * READ
    */
+  // 달력에서 확인
+  // 검색에서 확인
   const addedEventList = page.getByTestId('event-list').locator('> *');
   // await expect(addedEventList).toHaveCount(count + 1, { timeout: 10000 });
 
@@ -58,4 +60,48 @@ test('일정 CRUD 및 기본 기능', async ({ page }) => {
   await deleteBtn.click();
 
   await expect(addedCard).not.toBeVisible({ timeout: 5000 });
+});
+
+test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  const eventList = page.getByTestId('event-list').locator('> *');
+  const count = await eventList.count();
+
+  /**
+   * CREATE
+   */
+  await page.getByRole('textbox', { name: '제목' }).click();
+  await page.getByRole('textbox', { name: '제목' }).fill('새 회의');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-05');
+  await page.getByRole('textbox', { name: '시작 시간' }).fill('14:00');
+  await page.getByRole('textbox', { name: '종료 시간' }).fill('15:00');
+  await page.getByRole('textbox', { name: '설명' }).fill('프로젝트 진행 상황 논의');
+  await page.getByRole('textbox', { name: '위치' }).fill('회의실 A');
+  await page.getByLabel('카테고리').getByRole('combobox').click();
+  await page.getByRole('option', { name: '업무-option' }).click();
+  await page.getByRole('checkbox', { name: '반복 일정' }).check();
+  await page.getByRole('textbox', { name: '반복 종료일' }).fill('2025-11-08');
+  await page.getByTestId('event-submit-button').click();
+
+  /**
+   * READ
+   */
+  // 달력에서 확인
+  // 검색에서 확인
+  await expect(
+    page.locator('div').filter({ hasText: '새 회의2025-11-0514:00 - 15:00' }).nth(4)
+  ).toBeVisible();
+
+  /**
+   * UPDATE
+   */
+  // 전체
+  // 단일
+
+  /**
+   * DELETE
+   */
+  // 전체
+  // 단일
 });
