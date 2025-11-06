@@ -134,4 +134,9 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
 
   await expect(deleteEventList).toHaveCount(initialCount - 1, { timeout: 10000 });
   // 반복 일정 전체 삭제
+  const deleteAllCard = deleteEventList.nth(0);
+  await deleteAllCard.getByRole('button', { name: 'Delete event' }).click();
+  await page.getByRole('button', { name: '아니오' }).click();
+
+  await expect(deleteEventList).toHaveCount(0, { timeout: 10000 });
 });
