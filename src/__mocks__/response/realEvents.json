@@ -229,6 +229,18 @@
         "id": "ba372c87-3d6c-4fa4-a0f4-6811807cfdfa"
       },
       "notificationTime": 10
+    },
+    {
+      "id": "a9d365cb-6a0f-49ca-8d3f-b4313bebc738",
+      "title": "기존 회의",
+      "date": "2025-11-07",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "description": "프로젝트 진행 상황 논의",
+      "location": "회의실 C",
+      "category": "업무",
+      "repeat": { "type": "none", "interval": 0 },
+      "notificationTime": 10
     }
   ]
 }

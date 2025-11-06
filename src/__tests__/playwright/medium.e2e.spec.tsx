@@ -140,3 +140,21 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
 
   await expect(deleteEventList).toHaveCount(0, { timeout: 10000 });
 });
+
+test('단일 일정 생성 시, 기존 일정과 겹치면 경고가 노출된다.', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  await page.getByRole('textbox', { name: '제목' }).fill('새 회의');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-07');
+  await page.getByRole('textbox', { name: '시작 시간' }).fill('14:00');
+  await page.getByRole('textbox', { name: '종료 시간' }).fill('15:00');
+  await page.getByRole('textbox', { name: '설명' }).fill('프로젝트 진행 상황 논의');
+  await page.getByRole('textbox', { name: '위치' }).fill('회의실 A');
+  await page.getByLabel('카테고리').getByRole('combobox').click();
+  await page.getByRole('option', { name: '업무-option' }).click();
+  await page.getByTestId('event-submit-button').click();
+
+  await expect(page.getByRole('heading', { name: '일정 겹침 경고' })).toBeVisible({
+    timeout: 5000,
+  });
+});
