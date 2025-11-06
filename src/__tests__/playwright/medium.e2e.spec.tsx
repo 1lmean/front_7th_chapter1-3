@@ -99,7 +99,7 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   await page.getByRole('button', { name: '아니오' }).click();
 
   await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
-  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-07');
+  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-06');
   await page.getByRole('textbox', { name: '위치' }).clear();
   await page.getByRole('textbox', { name: '위치' }).fill('회의실 C');
   await page.getByTestId('event-submit-button').click();
@@ -109,14 +109,18 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   ).toContainText('회의실 C');
 
   // 반복 일정 단일 수정
-  await editCard.getByRole('button', { name: 'Edit event' }).click();
+  const editCardForSingle = page
+    .locator('[data-testid="event-list"] > *', { hasText: '새 회의' })
+    .nth(2);
+  await editCardForSingle.getByRole('button', { name: 'Edit event' }).click();
   await page.getByRole('button', { name: '예' }).click();
 
   await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
-  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-07');
+  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-06');
   await page.getByTestId('event-submit-button').click();
 
-  await expect(editCard).not.toContainText('반복: 1일마다 (종료: 2025-11-08)');
+  await expect(editCardForSingle).not.toContainText('반복: 1일마다 (종료: 2025-11-08)');
+  // todo: 반복 아이콘 삭제 여부 확인
 
   /**
    * DELETE
@@ -148,7 +152,7 @@ test('단일 일정을 생성하거나 수정할 때, 기존 일정과 겹치면
    * 단일 일정 생성 시, 기존 일정과 겹치면 경고가 노출된다
    */
   await page.getByRole('textbox', { name: '제목' }).fill('새 회의');
-  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-07');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-21');
   await page.getByRole('textbox', { name: '시작 시간' }).fill('14:00');
   await page.getByRole('textbox', { name: '종료 시간' }).fill('15:00');
   await page.getByRole('textbox', { name: '설명' }).fill('프로젝트 진행 상황 논의');
@@ -163,7 +167,7 @@ test('단일 일정을 생성하거나 수정할 때, 기존 일정과 겹치면
 
   await page.getByRole('button', { name: '취소' }).click();
   await page.getByRole('textbox', { name: '날짜' }).clear();
-  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-06');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-20');
   await page.getByTestId('event-submit-button').click();
 
   /**
@@ -172,11 +176,15 @@ test('단일 일정을 생성하거나 수정할 때, 기존 일정과 겹치면
   const editCard = page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).nth(0);
   await editCard.getByRole('button', { name: 'Edit event' }).click();
 
-  await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
-  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-06');
+  await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의', {
+    timeout: 5000,
+  });
+  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-20', {
+    timeout: 5000,
+  });
 
   await page.getByRole('textbox', { name: '날짜' }).clear();
-  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-07');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-21');
   await page.getByTestId('event-submit-button').click();
 
   await expect(page.getByRole('heading', { name: '일정 겹침 경고' })).toBeVisible({
