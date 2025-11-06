@@ -191,3 +191,57 @@ test('단일 일정을 생성하거나 수정할 때, 기존 일정과 겹치면
     timeout: 5000,
   });
 });
+
+test('알림 시간을 설정하면 일정 목록에 알림 정보가 표시된다', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  /**
+   * 알림 시간 1분 전으로 설정한 일정 생성
+   */
+  await page.getByRole('textbox', { name: '제목' }).fill('알림 테스트 회의');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-10');
+  await page.getByRole('textbox', { name: '시작 시간' }).fill('10:00');
+  await page.getByRole('textbox', { name: '종료 시간' }).fill('11:00');
+  await page.getByRole('textbox', { name: '설명' }).fill('알림 테스트');
+  await page.getByRole('textbox', { name: '위치' }).fill('회의실 A');
+  await page.getByLabel('카테고리').getByRole('combobox').click();
+  await page.getByRole('option', { name: '업무-option' }).click();
+
+  // 알림 시간을 1분 전으로 설정
+  await page.locator('#notification').click();
+  await page.getByRole('option', { name: '1분 전' }).click();
+
+  await page.getByTestId('event-submit-button').click();
+
+  // 생성된 일정에 알림 정보가 표시되는지 확인
+  const createdEvent = page.locator('[data-testid="event-list"] > *', {
+    hasText: '알림 테스트 회의',
+  });
+  await expect(createdEvent.first()).toBeVisible({ timeout: 10000 });
+  await expect(createdEvent.first()).toContainText('알림: 1분 전');
+
+  /**
+   * 알림 시간 10분 전으로 설정한 일정 생성
+   */
+  await page.getByRole('textbox', { name: '제목' }).fill('10분 전 알림 회의');
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-11');
+  await page.getByRole('textbox', { name: '시작 시간' }).fill('14:00');
+  await page.getByRole('textbox', { name: '종료 시간' }).fill('15:00');
+  await page.getByRole('textbox', { name: '설명' }).fill('10분 전 알림');
+  await page.getByRole('textbox', { name: '위치' }).fill('회의실 B');
+  await page.getByLabel('카테고리').getByRole('combobox').click();
+  await page.getByRole('option', { name: '업무-option' }).click();
+
+  // 알림 시간을 10분 전으로 설정 (기본값)
+  await page.locator('#notification').click();
+  await page.getByRole('option', { name: '10분 전' }).click();
+
+  await page.getByTestId('event-submit-button').click();
+
+  // 생성된 일정에 알림 정보가 표시되는지 확인
+  const secondEvent = page.locator('[data-testid="event-list"] > *', {
+    hasText: '10분 전 알림 회의',
+  });
+  await expect(secondEvent.first()).toBeVisible({ timeout: 10000 });
+  await expect(secondEvent.first()).toContainText('알림: 10분 전');
+});
