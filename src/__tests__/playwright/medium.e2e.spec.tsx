@@ -92,10 +92,10 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   /**
    * UPDATE
    */
-  const targetCard = page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).nth(2);
+  const editCard = page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).nth(2);
 
   // 반복 일정 전체 수정
-  await targetCard.getByRole('button', { name: 'Edit event' }).click();
+  await editCard.getByRole('button', { name: 'Edit event' }).click();
   await page.getByRole('button', { name: '아니오' }).click();
 
   await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
@@ -109,19 +109,29 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   ).toContainText('회의실 C');
 
   // 반복 일정 단일 수정
-  await targetCard.getByRole('button', { name: 'Edit event' }).click();
+  await editCard.getByRole('button', { name: 'Edit event' }).click();
   await page.getByRole('button', { name: '예' }).click();
 
   await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
   await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-07');
   await page.getByTestId('event-submit-button').click();
 
-  await expect(targetCard).not.toContainText('반복: 1일마다 (종료: 2025-11-08)');
+  await expect(editCard).not.toContainText('반복: 1일마다 (종료: 2025-11-08)');
 
   /**
    * DELETE
    */
-  // 반복 일정 단일 삭제
 
+  // 반복 일정 단일 삭제
+  const deleteEventList = page.locator('[data-testid="event-list"] > *', {
+    hasText: '반복: 1일마다 (종료: 2025-11-08)',
+  });
+  const initialCount = await deleteEventList.count();
+
+  const deleteCard = deleteEventList.nth(1);
+  await deleteCard.getByRole('button', { name: 'Delete event' }).click();
+  await page.getByRole('button', { name: '예' }).click();
+
+  await expect(deleteEventList).toHaveCount(initialCount - 1, { timeout: 10000 });
   // 반복 일정 전체 삭제
 });
