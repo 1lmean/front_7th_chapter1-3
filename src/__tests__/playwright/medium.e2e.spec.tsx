@@ -141,9 +141,12 @@ test('반복 일정 CRUD 및 기본 기능', async ({ page }) => {
   await expect(deleteEventList).toHaveCount(0, { timeout: 10000 });
 });
 
-test('단일 일정 생성 시, 기존 일정과 겹치면 경고가 노출된다.', async ({ page }) => {
+test('단일 일정을 생성하거나 수정할 때, 기존 일정과 겹치면 경고가 노출된다.', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
+  /**
+   * 단일 일정 생성 시, 기존 일정과 겹치면 경고가 노출된다
+   */
   await page.getByRole('textbox', { name: '제목' }).fill('새 회의');
   await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-07');
   await page.getByRole('textbox', { name: '시작 시간' }).fill('14:00');
@@ -152,6 +155,28 @@ test('단일 일정 생성 시, 기존 일정과 겹치면 경고가 노출된�
   await page.getByRole('textbox', { name: '위치' }).fill('회의실 A');
   await page.getByLabel('카테고리').getByRole('combobox').click();
   await page.getByRole('option', { name: '업무-option' }).click();
+  await page.getByTestId('event-submit-button').click();
+
+  await expect(page.getByRole('heading', { name: '일정 겹침 경고' })).toBeVisible({
+    timeout: 5000,
+  });
+
+  await page.getByRole('button', { name: '취소' }).click();
+  await page.getByRole('textbox', { name: '날짜' }).clear();
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-06');
+  await page.getByTestId('event-submit-button').click();
+
+  /**
+   * 단일 일정 수정 시, 기존 일정과 겹치면 경고가 노출된다
+   */
+  const editCard = page.locator('[data-testid="event-list"] > *', { hasText: '새 회의' }).nth(0);
+  await editCard.getByRole('button', { name: 'Edit event' }).click();
+
+  await expect(page.getByRole('textbox', { name: '제목' })).toHaveValue('새 회의');
+  await expect(page.getByRole('textbox', { name: '날짜' })).toHaveValue('2025-11-06');
+
+  await page.getByRole('textbox', { name: '날짜' }).clear();
+  await page.getByRole('textbox', { name: '날짜' }).fill('2025-11-07');
   await page.getByTestId('event-submit-button').click();
 
   await expect(page.getByRole('heading', { name: '일정 겹침 경고' })).toBeVisible({
