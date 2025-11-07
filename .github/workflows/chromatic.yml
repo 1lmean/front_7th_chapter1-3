@@ -5,10 +5,10 @@ on:
     branches:
       - main
       - master
-  pull_request:
-    branches:
-      - main
-      - master
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - master
 
 jobs:
   chromatic:
@@ -45,4 +45,3 @@ jobs:
           buildScriptName: build-storybook
           exitZeroOnChanges: true
           autoAcceptChanges: main
-
