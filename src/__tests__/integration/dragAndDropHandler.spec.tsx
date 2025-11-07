@@ -217,6 +217,19 @@ describe('드래그 앤 드롭 핸들러 로직 - 날짜 변환', () => {
 });
 
 describe('드래그 앤 드롭 핸들러 로직 - 겹침 검증', () => {
+  const timeToMinutes = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const isOverlap = (a: Event, b: Event) => {
+    const start1 = timeToMinutes(a.startTime);
+    const end1 = timeToMinutes(a.endTime);
+    const start2 = timeToMinutes(b.startTime);
+    const end2 = timeToMinutes(b.endTime);
+    return start1 < end2 && start2 < end1;
+  };
+
   it('시간이 겹치는 일정이 있으면 드롭이 차단된다', () => {
     const existingEvent: Event = {
       id: '2',
@@ -244,20 +257,7 @@ describe('드래그 앤 드롭 핸들러 로직 - 겹침 검증', () => {
       notificationTime: 10,
     };
 
-    // 겹침 확인 로직
-    const timeToMinutes = (time: string) => {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
-    };
-
-    const start1 = timeToMinutes(existingEvent.startTime);
-    const end1 = timeToMinutes(existingEvent.endTime);
-    const start2 = timeToMinutes(droppedEvent.startTime);
-    const end2 = timeToMinutes(droppedEvent.endTime);
-
-    const isOverlapping = start1 < end2 && start2 < end1;
-
-    expect(isOverlapping).toBe(true);
+    expect(isOverlap(existingEvent, droppedEvent)).toBe(true);
   });
 
   it('시간이 겹치지 않으면 드롭이 허용된다', () => {
@@ -287,19 +287,37 @@ describe('드래그 앤 드롭 핸들러 로직 - 겹침 검증', () => {
       notificationTime: 10,
     };
 
-    const timeToMinutes = (time: string) => {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
+    expect(isOverlap(existingEvent, droppedEvent)).toBe(false);
+  });
+
+  it('경계값: 기존 일정의 end === 이동일정의 start 면 겹치지 않음(허용)', () => {
+    const existingEvent: Event = {
+      id: 'a',
+      title: '기존 일정',
+      date: '2024-11-10',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '기존',
+      location: '회의실',
+      category: '업무',
+      repeat: { type: 'none', interval: 1 },
+      notificationTime: 10,
     };
 
-    const start1 = timeToMinutes(existingEvent.startTime);
-    const end1 = timeToMinutes(existingEvent.endTime);
-    const start2 = timeToMinutes(droppedEvent.startTime);
-    const end2 = timeToMinutes(droppedEvent.endTime);
+    const droppedEvent: Event = {
+      id: 'b',
+      title: '이동할 일정',
+      date: '2024-11-10',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '이동',
+      location: '회의실',
+      category: '업무',
+      repeat: { type: 'none', interval: 1 },
+      notificationTime: 10,
+    };
 
-    const isOverlapping = start1 < end2 && start2 < end1;
-
-    expect(isOverlapping).toBe(false);
+    expect(isOverlap(existingEvent, droppedEvent)).toBe(false);
   });
 });
 
