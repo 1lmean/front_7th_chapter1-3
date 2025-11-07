@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import EventSearch from './EventSearch';
-
 import type { Event } from '../types';
 
 const mockEvents: Event[] = [
