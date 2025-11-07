@@ -1,15 +1,10 @@
-import { Close, Delete, Edit, Notifications, Repeat } from '@mui/icons-material';
+import { Close } from '@mui/icons-material';
 import {
   Alert,
   AlertTitle,
   Box,
   Button,
   Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -24,6 +19,7 @@ import {
 import { useSnackbar } from 'notistack';
 import { useCallback, useState } from 'react';
 
+import EventSearch from './components/EventSearch.tsx';
 import EventView from './components/EventView.tsx';
 import OverlappingEventDialog from './components/OverlappingEventDialog.tsx';
 import RecurringEventDialog from './components/RecurringEventDialog.tsx';
@@ -34,7 +30,6 @@ import { useRecurringEventOperations } from './hooks/useRecurringEventOperations
 import { useSearch } from './hooks/useSearch.ts';
 import { Event, EventForm, RepeatType } from './types.ts';
 import { findOverlappingEvents } from './utils/eventOverlap.ts';
-import { getRepeatTypeLabel } from './utils/eventUtils.ts';
 import { getTimeErrorMessage } from './utils/timeValidation.ts';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -546,131 +541,15 @@ function App() {
           onEmptySlotSelect={handleEmptySlotSelect}
         />
 
-        <Stack
-          data-testid="event-list"
-          spacing={2}
-          sx={{ width: '30%', height: '100%', overflowY: 'auto' }}
-        >
-          <FormControl fullWidth>
-            <FormLabel htmlFor="search">일정 검색</FormLabel>
-            <TextField
-              id="search"
-              size="small"
-              placeholder="검색어를 입력하세요"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </FormControl>
-
-          {filteredEvents.length === 0 ? (
-            <Typography>검색 결과가 없습니다.</Typography>
-          ) : (
-            filteredEvents.map((event) => (
-              <Box key={event.id} sx={{ border: 1, borderRadius: 2, p: 3, width: '100%' }}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Stack>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      {notifiedEvents.includes(event.id) && <Notifications color="error" />}
-                      {event.repeat.type !== 'none' && (
-                        <Tooltip
-                          title={`${event.repeat.interval}${getRepeatTypeLabel(
-                            event.repeat.type
-                          )}마다 반복${
-                            event.repeat.endDate ? ` (종료: ${event.repeat.endDate})` : ''
-                          }`}
-                        >
-                          <Repeat fontSize="small" />
-                        </Tooltip>
-                      )}
-                      <Typography
-                        fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
-                        color={notifiedEvents.includes(event.id) ? 'error' : 'inherit'}
-                      >
-                        {event.title}
-                      </Typography>
-                    </Stack>
-                    <Typography>{event.date}</Typography>
-                    <Typography>
-                      {event.startTime} - {event.endTime}
-                    </Typography>
-                    <Typography>{event.description}</Typography>
-                    <Typography>{event.location}</Typography>
-                    <Typography>카테고리: {event.category}</Typography>
-                    {event.repeat.type !== 'none' && (
-                      <Typography>
-                        반복: {event.repeat.interval}
-                        {event.repeat.type === 'daily' && '일'}
-                        {event.repeat.type === 'weekly' && '주'}
-                        {event.repeat.type === 'monthly' && '월'}
-                        {event.repeat.type === 'yearly' && '년'}
-                        마다
-                        {event.repeat.endDate && ` (종료: ${event.repeat.endDate})`}
-                      </Typography>
-                    )}
-                    <Typography>
-                      알림:{' '}
-                      {
-                        notificationOptions.find(
-                          (option) => option.value === event.notificationTime
-                        )?.label
-                      }
-                    </Typography>
-                  </Stack>
-                  <Stack>
-                    <IconButton aria-label="Edit event" onClick={() => handleEditEvent(event)}>
-                      <Edit />
-                    </IconButton>
-                    <IconButton aria-label="Delete event" onClick={() => handleDeleteEvent(event)}>
-                      <Delete />
-                    </IconButton>
-                  </Stack>
-                </Stack>
-              </Box>
-            ))
-          )}
-        </Stack>
+        <EventSearch
+          filteredEvents={filteredEvents}
+          notifiedEvents={notifiedEvents}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          onEdit={handleEditEvent}
+          onDelete={handleDeleteEvent}
+        />
       </Stack>
-      {/* 
-      <Dialog open={isOverlapDialogOpen} onClose={() => setIsOverlapDialogOpen(false)}>
-        <DialogTitle>일정 겹침 경고</DialogTitle>
-        <DialogContent>
-          <DialogContentText>다음 일정과 겹칩니다:</DialogContentText>
-          {overlappingEvents.map((event) => (
-            <Typography key={event.id} sx={{ ml: 1, mb: 1 }}>
-              {event.title} ({event.date} {event.startTime}-{event.endTime})
-            </Typography>
-          ))}
-          <DialogContentText>계속 진행하시겠습니까?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsOverlapDialogOpen(false)}>취소</Button>
-          <Button
-            color="error"
-            onClick={() => {
-              setIsOverlapDialogOpen(false);
-              saveEvent({
-                id: editingEvent ? editingEvent.id : undefined,
-                title,
-                date,
-                startTime,
-                endTime,
-                description,
-                location,
-                category,
-                repeat: {
-                  type: isRepeating ? repeatType : 'none',
-                  interval: repeatInterval,
-                  endDate: repeatEndDate || undefined,
-                },
-                notificationTime,
-              });
-            }}
-          >
-            계속 진행
-          </Button>
-        </DialogActions>
-      </Dialog> 
-      */}
 
       <OverlappingEventDialog
         open={isOverlapDialogOpen}
