@@ -182,7 +182,7 @@ describe('반복 일정 워크플로우 통합 테스트', () => {
 
     // 결과 확인: 최소한 변경된 이벤트가 존재해야 함
     const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getAllByText('전체 변경된 회의')).toHaveLength(2);
+    expect(await eventList.getAllByText('전체 변경된 회의')).toHaveLength(2);
   });
 
   describe('반복 일정 삭제 워크플로우 (P2 테스트)', () => {
