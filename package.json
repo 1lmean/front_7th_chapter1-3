@@ -19,7 +19,10 @@
     "test:e2e:ci": "playwright test --reporter=html",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "chromatic": "chromatic --exit-zero-on-changes"
+    "chromatic": "npx chromatic --project-token=chpt_e0b18054b06ea0b",
+    "chromatic:ci": "npx chromatic --project-token=chpt_e0b18054b06ea0b --exit-zero-on-changes",
+    "prepare": "husky",
+    "lint-staged": "lint-staged"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -60,7 +63,17 @@
     "eslint-plugin-storybook": "^9.0.14",
     "eslint-plugin-vitest": "^0.5.4",
     "globals": "16.3.0",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": {
+      "*.{js,jsx,ts,tsx}": [
+        "eslint --fix",
+        "prettier --write"
+      ],
+      "*.{json,css,md}": [
+        "prettier --write"
+      ]
+    },
     "storybook": "^10.0.5",
     "typescript": "^5.2.2",
     "vite": "^7.0.2",
