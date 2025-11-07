@@ -154,11 +154,24 @@ describe('일정 뷰', () => {
       category: '업무',
     });
 
+    // 일정이 목록에 추가될 때까지 대기
+    await waitFor(() => {
+      const eventList = within(screen.getByTestId('event-list'));
+      expect(eventList.getByText('이번주 팀 회의')).toBeInTheDocument();
+    });
+
     await user.click(within(screen.getByLabelText('뷰 타입 선택')).getByRole('combobox'));
     await user.click(screen.getByRole('option', { name: 'week-option' }));
 
+    // week-view가 렌더링될 때까지 대기
+    await waitFor(() => {
+      expect(screen.getByTestId('week-view')).toBeInTheDocument();
+    });
+
     const weekView = within(screen.getByTestId('week-view'));
-    expect(weekView.getByText('이번주 팀 회의')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(weekView.getByText('이번주 팀 회의')).toBeInTheDocument();
+    });
   });
 
   it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {
