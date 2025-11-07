@@ -25,6 +25,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useState } from 'react';
 
 import EventView from './components/EventView.tsx';
+import OverlappingEventDialog from './components/OverlappingEventDialog.tsx';
 import RecurringEventDialog from './components/RecurringEventDialog.tsx';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -172,6 +173,26 @@ function App() {
       setIsRecurringDialogOpen(false);
       setPendingRecurringDelete(null);
     }
+  };
+
+  const handleOverlappingConfirm = () => {
+    setIsOverlapDialogOpen(false);
+    saveEvent({
+      id: editingEvent ? editingEvent.id : undefined,
+      title,
+      date,
+      startTime,
+      endTime,
+      description,
+      location,
+      category,
+      repeat: {
+        type: isRepeating ? repeatType : 'none',
+        interval: repeatInterval,
+        endDate: repeatEndDate || undefined,
+      },
+      notificationTime,
+    });
   };
 
   const isRecurringEvent = (event: Event): boolean => {
@@ -609,7 +630,7 @@ function App() {
           )}
         </Stack>
       </Stack>
-
+      {/* 
       <Dialog open={isOverlapDialogOpen} onClose={() => setIsOverlapDialogOpen(false)}>
         <DialogTitle>일정 겹침 경고</DialogTitle>
         <DialogContent>
@@ -648,7 +669,15 @@ function App() {
             계속 진행
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> 
+      */}
+
+      <OverlappingEventDialog
+        open={isOverlapDialogOpen}
+        onClose={() => setIsOverlapDialogOpen(false)}
+        onConfirm={handleOverlappingConfirm}
+        overlappingEvents={overlappingEvents}
+      />
 
       <RecurringEventDialog
         open={isRecurringDialogOpen}
